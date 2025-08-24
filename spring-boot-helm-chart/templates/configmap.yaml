@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "spring-boot-helm-chart.fullname" . }}
+  labels:
+    {{- include "spring-boot-helm-chart.labels" . | nindent 4 }}
+data:
+  application.properties: |
+    {{- .Values.applicationProperties | nindent 4 }}

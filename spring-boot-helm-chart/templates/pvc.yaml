@@ -1,0 +1,13 @@
+{{- if .Values.persistentVolumeClaim.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "spring-boot-helm-chart.fullname" . }}
+spec:
+  accessModes:
+    - {{ .Values.persistentVolumeClaim.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistentVolumeClaim.storage }}
+  storageClassName: {{ .Values.persistentVolumeClaim.storageClass }}
+{{- end }}

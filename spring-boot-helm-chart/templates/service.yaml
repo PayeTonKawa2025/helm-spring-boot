@@ -1,0 +1,94 @@
+{{- if .Values.service.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "spring-boot-helm-chart.fullname" . }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "spring-boot-helm-chart.labels" . | nindent 4 }}
+    {{- with .Values.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .Values.service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if and (eq .Values.service.type "ExternalName") .Values.service.externalName }}
+  externalName: {{ .Values.service.externalName }}
+  {{- end }}
+  {{- if .Values.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.service.externalIPs | nindent 4 }}
+  {{- end }}
+  {{- if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- end }}
+  {{- if and (eq .Values.service.sessionAffinity "ClientIP") .Values.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml .Values.service.sessionAffinityConfig | nindent 4 }}
+  {{- end }}
+  {{- if .Values.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+  {{- end }}
+  {{- if .Values.service.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ .Values.service.internalTrafficPolicy }}
+  {{- end }}
+  {{- if .Values.service.ipFamilyPolicy }}
+  ipFamilyPolicy: {{ .Values.service.ipFamilyPolicy }}
+  {{- end }}
+  {{- if .Values.service.ipFamilies }}
+  ipFamilies:
+    {{- toYaml .Values.service.ipFamilies | nindent 4 }}
+  {{- end }}
+  {{- if .Values.service.publishNotReadyAddresses }}
+  publishNotReadyAddresses: {{ .Values.service.publishNotReadyAddresses }}
+  {{- end }}
+  ports:
+    {{- if .Values.service.ports }}
+    {{- range .Values.service.ports }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      {{- if .targetPort }}
+      targetPort: {{ .targetPort }}
+      {{- end }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+      {{- if .appProtocol }}
+      appProtocol: {{ .appProtocol }}
+      {{- end }}
+    {{- end }}
+    {{- else }}
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort | default "http" }}
+      protocol: {{ .Values.service.protocol | default "TCP" }}
+      name: {{ .Values.service.portName | default "http" }}
+      {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      {{- if .Values.service.appProtocol }}
+      appProtocol: {{ .Values.service.appProtocol }}
+      {{- end }}
+    {{- end }}
+  {{- if not (eq .Values.service.type "ExternalName") }}
+  selector:
+    {{- include "spring-boot-helm-chart.selectorLabels" . | nindent 4 }}
+    {{- with .Values.service.selector }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
