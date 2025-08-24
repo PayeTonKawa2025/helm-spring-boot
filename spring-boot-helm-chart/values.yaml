@@ -1,0 +1,264 @@
+# Default values for simple-helm-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: nginx
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+podPorts: []
+
+env: []
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  enabled: true
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  # Available types: ClusterIP, NodePort, LoadBalancer, ExternalName
+  type: ClusterIP
+  
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+  # Target port can be a port number or port name
+  targetPort: http
+  # Protocol for the port (TCP, UDP, SCTP)
+  protocol: TCP
+  # Name for the port
+  portName: http
+  # Node port for NodePort or LoadBalancer service types (30000-32767)
+  nodePort: ""
+  # Application protocol (HTTP, HTTPS, gRPC, etc.)
+  appProtocol: ""
+  
+  # Multiple ports configuration (alternative to single port above)
+  # If ports is defined, it will override the single port configuration
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+      appProtocol: HTTP
+    - name: management
+      port: 8081
+      targetPort: 8081
+      protocol: TCP
+      appProtocol: HTTP
+  # Example:
+  # ports:
+  #   - name: http
+  #     port: 80
+  #     targetPort: 8080
+  #     protocol: TCP
+  #     nodePort: 30080
+  #     appProtocol: HTTP
+  #   - name: https
+  #     port: 443
+  #     targetPort: 8443
+  #     protocol: TCP
+  #     nodePort: 30443
+  #     appProtocol: HTTPS
+  
+  # Annotations to add to the service
+  annotations: {}
+  # Example:
+  # annotations:
+  #   service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  #   service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  
+  # Additional labels for the service
+  labels: {}
+  
+  # ClusterIP configuration
+  # Set to "None" for headless service, or specific IP for static assignment
+  clusterIP: ""
+  
+  # External IPs that route to one or more cluster nodes
+  externalIPs: []
+  # Example:
+  # externalIPs:
+  #   - 192.168.1.100
+  #   - 192.168.1.101
+  
+  # LoadBalancer specific configuration
+  # Static IP for LoadBalancer service type
+  loadBalancerIP: ""
+  # Restrict LoadBalancer service to specific source ranges
+  loadBalancerSourceRanges: []
+  # Example:
+  # loadBalancerSourceRanges:
+  #   - 10.0.0.0/8
+  #   - 192.168.0.0/16
+  
+  # ExternalName service configuration
+  # FQDN for ExternalName service type
+  externalName: ""
+  
+  # Session affinity configuration
+  # Options: None, ClientIP
+  sessionAffinity: ""
+  # Session affinity configuration for ClientIP
+  sessionAffinityConfig: {}
+  # Example:
+  # sessionAffinityConfig:
+  #   clientIP:
+  #     timeoutSeconds: 10800
+  
+  # Traffic policy configuration
+  # External traffic policy for NodePort and LoadBalancer services
+  # Options: Cluster, Local
+  externalTrafficPolicy: ""
+  # Internal traffic policy
+  # Options: Cluster, Local
+  internalTrafficPolicy: ""
+  
+  # IP family configuration for dual-stack
+  # Options: IPv4, IPv6
+  ipFamilies: []
+  # Example:
+  # ipFamilies:
+  #   - IPv4
+  #   - IPv6
+  
+  # IP family policy for dual-stack
+  # Options: SingleStack, PreferDualStack, RequireDualStack
+  ipFamilyPolicy: ""
+  
+  # Publish not ready addresses
+  publishNotReadyAddresses: false
+  
+  # Additional selector labels (will be merged with default selector)
+  selector: {}
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: management
+  initialDelaySeconds: 20
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: management
+  initialDelaySeconds: 20
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistentVolume:
+  enabled: false
+  capacity: 1Gi
+  accessMode: ReadWriteOnce
+  reclaimPolicy: Retain
+  storageClass: local-path
+  hostPath: /mnt/data
+
+persistentVolumeClaim:
+  enabled: false
+  accessMode: ReadWriteOnce
+  storage: 1Gi
+  storageClass: local-path
+  mountPath: /data
+
+stdin: false
+tty: false
+
+applicationProperties: ""
+
+command: []
+args: []
